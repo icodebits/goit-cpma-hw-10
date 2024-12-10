@@ -1,12 +1,25 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+  Image,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Platform,
+} from "react-native";
 const backgroundImage = require("../assets/images/background.png");
 const addIcon = require("../assets/images/add.png");
 
-const RegistrationScreen = () => {
+const RegistrationScreen = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-
+  const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
 
   const validateEmail = (email) => {
@@ -19,72 +32,91 @@ const RegistrationScreen = () => {
       setEmailError("Введіть дійсну адресу електронної пошти");
     } else {
       setEmailError("");
+      console.log("Form submitted with login:", login);
       console.log("Form submitted with email:", email);
+      console.log("Form submitted with password:", password);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ImageBackground
         source={backgroundImage}
         style={styles.backgroundImage}
       >
-        <View style={styles.formContainer}>
-          <View style={styles.profileContainer}>
-            <TouchableOpacity style={styles.addPhotoButton}>
-              <Image source={addIcon} style={styles.icon} />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.title}>Реєстрація</Text>
-          <TextInput
-            placeholder="Логін"
-            style={styles.input}
-            placeholderTextColor="#BDBDBD"
-          />
-          <TextInput
-            placeholder="Адреса електронної пошти"
-            style={[styles.input, emailError ? styles.inputError : null]}
-            placeholderTextColor="#BDBDBD"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setEmailError(""); // Clear error while typing
-            }}
-          />
-          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-          <View style={styles.passwordContainer}>
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS == "ios" ? 'padding' : 'height'}>
+          <View style={styles.formContainer}>
+            <View style={styles.profileContainer}>
+              <TouchableOpacity style={styles.addPhotoButton}>
+                <Image source={addIcon} style={styles.icon} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.title}>Реєстрація</Text>
             <TextInput
-              placeholder="Пароль"
+              placeholder="Логін"
               style={styles.input}
               placeholderTextColor="#BDBDBD"
-              secureTextEntry={!passwordVisible}
+              keyboardType="default"
+              autoCapitalize="none"
+              value={login}
+              onChangeText={(text) => {
+                setLogin(text);
+              }}
             />
-            <TouchableOpacity
-              onPress={() => setPasswordVisible(!passwordVisible)}
-              style={styles.showPassword}
-            >
-              <Text style={styles.showPasswordText}>{passwordVisible ? "Сховати" : "Показати"}</Text>
+            <TextInput
+              placeholder="Адреса електронної пошти"
+              style={[styles.input, emailError ? styles.inputError : null]}
+              placeholderTextColor="#BDBDBD"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError("");
+              }}
+            />
+            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+            <View style={styles.passwordContainer}>
+              <TextInput
+                placeholder="Пароль"
+                style={styles.input}
+                placeholderTextColor="#BDBDBD"
+                autoCapitalize="none"
+                secureTextEntry={!passwordVisible}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                }}
+              />
+              <TouchableOpacity
+                onPress={() => setPasswordVisible(!passwordVisible)}
+                style={styles.showPassword}
+              >
+                <Text style={styles.showPasswordText}>{passwordVisible ? "Сховати" : "Показати"}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.registerButton} onPress={handleFormSubmit}>
+              <Text style={styles.registerButtonText}>Зареєструватися</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.loginLink}>
+                Вже є акаунт? Увійти
+              </Text>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.registerButton} onPress={handleFormSubmit}>
-            <Text style={styles.registerButtonText}>Зареєструватися</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Text style={styles.loginLink}>
-              Вже є акаунт? Увійти
-            </Text>
-          </TouchableOpacity>
-        </View>
+        </KeyboardAvoidingView>
       </ImageBackground>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     width: "100%",
   },
   backgroundImage: {
@@ -101,7 +133,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     height: 580,
-    top: 135,
+    top: 140,
   },
   profileContainer: {
     width: 120,

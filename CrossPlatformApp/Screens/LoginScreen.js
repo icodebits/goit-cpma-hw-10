@@ -48,6 +48,7 @@ const LoginScreen = ({ navigation }) => {
       console.log("Form submitted with email:", email);
       console.log("Form submitted with password:", password);
       Keyboard.dismiss();
+      navigation.navigate("Home");
     }
   };
 

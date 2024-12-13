@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
   registerLink: {
     color: "#1B4371",
     textDecorationLine: "underline",
-    
   },
 });
 

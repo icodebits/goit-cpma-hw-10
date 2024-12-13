@@ -53,8 +53,9 @@ const Home = ({ navigation }) => {
       />
       <Tab.Screen
         name="CreatePosts"
-        component={CreatePostsScreen}
+        component={CreatePostsScreen} 
         options={{
+          tabBarStyle: { display: "none" },
           headerTitle: "Створити публікацію",
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Posts' })}>

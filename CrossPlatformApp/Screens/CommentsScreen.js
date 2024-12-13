@@ -5,9 +5,6 @@ const CommentsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text>Comments Screen</Text>
-      <TouchableOpacity onPress={() => navigation.navigate("CreatePosts")}>
-        <Text>Create a Post</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -17,6 +14,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
 });
 

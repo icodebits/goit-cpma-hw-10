@@ -33,6 +33,8 @@ const PostsScreen = ({ navigation }) => {
     fetchPosts();
   }, []);
 
+  //console.log(posts);
+
   return (
     <View style={styles.container}>
       <View style={styles.userInfo}>
@@ -47,14 +49,14 @@ const PostsScreen = ({ navigation }) => {
         {loading && <Text>Loading...</Text>}
         <FlatList
         data={posts}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.postId}
         renderItem={({ item }) => (
           <View style={styles.postCard}>
-            <Image source={{ uri: item.photo }} style={styles.postImage} />
-            <Text style={styles.postTitle}>{item.title}</Text>
+            <Image source={{ uri: item.data.photo }} style={styles.postImage} />
+            <Text style={styles.postTitle}>{item.data.title}</Text>
             <View style={styles.footerContainer}>
               <TouchableOpacity onPress={() => {
-                navigation.navigate("Comments");
+                navigation.navigate("Comments", { postId: item.postId });
               }} style={styles.messageContainer}>
                 <Image source={messageIcon} style={styles.messageIcon} />
                 <Text style={styles.messageCounter}>0</Text>
@@ -62,9 +64,9 @@ const PostsScreen = ({ navigation }) => {
               <View style={styles.locationContainer}>
                 <Image source={mapPinIcon} style={styles.mapPinIcon} />
                 <TouchableOpacity onPress={() => {
-                  navigation.navigate("Map", { latitude: item.latitude, longitude: item.longitude });
+                  navigation.navigate("Map", { latitude: item.data.latitude, longitude: item.data.longitude });
                 }}>
-                  <Text style={styles.locationText}>{item.location}</Text>
+                  <Text style={styles.locationText}>{item.data.location}</Text>
                 </TouchableOpacity>
               </View>
             </View>

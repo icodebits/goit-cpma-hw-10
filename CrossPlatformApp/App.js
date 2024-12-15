@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { createStackNavigator } from "@react-navigation/stack"
 import { useSelector } from "react-redux";
 
@@ -15,6 +15,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import store from './redux/store/store';
 import { useEffect } from 'react';
 import { authStateChanged } from './utils/auth';
+const arrowLeftIcon = require("./assets/icons/arrow-left.png");
 
 const Stack = createStackNavigator();
 
@@ -44,7 +45,17 @@ const AuthListener = () => {
             <Stack.Screen
               name="Comments"
               component={CommentsScreen}
-              options={{ headerShown: false }}
+              options={({ navigation }) => ({
+                headerShown: true,
+                headerTitle: "Коментарі",
+                headerLeft: () => (
+                  <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Posts' })}>
+                      <View style={[styles.headerLeftIcon]}>
+                          <Image source={arrowLeftIcon} style={styles.arrowLeftIcon} />
+                      </View>
+                  </TouchableOpacity>
+                ),
+              })}
             />
           </>
         ) : (
@@ -85,5 +96,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  arrowLeftIcon: {
+        width: 24,
+        height: 24,
+  },
+  leftIcon: {
+      marginLeft: 90,
+  },
+  headerLeftIcon: {
+      marginLeft: 10,
   },
 });

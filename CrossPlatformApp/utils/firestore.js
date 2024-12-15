@@ -25,14 +25,38 @@ export const getPosts = async (userId) => {
   const docRef = collection(db, 'posts', userId, 'posts');
   const docSnap = await getDocs(docRef);
 
-  const posts = docSnap.docs.map((doc) => doc.data());
-
+  const posts = docSnap.docs.map((doc) => ({ postId: doc.id, data: doc.data() }));
+  
   if (posts) {
     //console.log('Posts from getPosts:', posts);
     return posts;
   } else {
     console.log('No documents for user!');
     return null;
+  }
+};
+
+export const getPost = async (userId, postId) => {
+  const docRef = doc(db, 'posts', userId, 'posts', postId);
+  const docSnap = await getDoc(docRef);
+
+  const post = { postId: docSnap.id, data: docSnap.data() };
+  
+  if (post) {
+    //console.log('Post from getPost:', post);
+    return post;
+  } else {
+    console.log('No documents for user!');
+    return null;
+  }
+};
+
+export const updatePostInFirestore = async (uid, postId, post) => {
+  try {
+    await setDoc(doc(db, 'posts', uid, 'posts', postId), post, { merge: true }); // merge: true - для оновлення існуючого документа або створення нового
+    console.log('Post data updated to Firestore:', uid, postId);
+  } catch (error) {
+    console.error('Error saving user data to Firestore:', error);
   }
 };
 

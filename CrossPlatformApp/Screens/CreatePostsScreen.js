@@ -11,11 +11,15 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import * as MediaLibrary from "expo-media-library";
+import { useDispatch, useSelector } from "react-redux";
+import { addPost as addPostAction } from "../redux/reducers/postsSlice";
+import { addPost } from "../utils/firestore";
 const cameraIcon = require("../assets/icons/camera.png");
 const trashIcon = require("../assets/icons/trash.png");
 const mapPinIcon = require("../assets/icons/map-pin.png");
 
 const CreatePostsScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [photoUri, setPhotoUri] = useState(null);
   const [libraryPermission, requestLibraryPermission] = MediaLibrary.usePermissions();
@@ -25,6 +29,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [location, setLocation] = useState(null);
   const [postTitle, setPostTitle] = useState("");
   const [postLocation, setPostLocation] = useState("");
+  const user = useSelector((state) => state.user.userInfo);
   
   useEffect(() => {
     if (photoUri) {
@@ -77,6 +82,8 @@ const CreatePostsScreen = ({ navigation }) => {
   }
   
   const handlePublish = async () => {
+    if (!user) return;
+
     try {
       const location = await Location.getCurrentPositionAsync({});
       setLocation(location.coords);
@@ -94,6 +101,26 @@ const CreatePostsScreen = ({ navigation }) => {
         Longitude: ${location.coords.longitude}`
       );*/
 
+      const newPost = {
+        id: Date.now().toString(),
+        title: postTitle,
+        location: postLocation,
+        photo: photoUri,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        createdAt: new Date().toISOString(),
+      };
+      console.log("New Post:", newPost);
+
+      //dispatch(addPost(newPost));
+
+      try {
+        await addPost(user?.uid, newPost);
+        dispatch(addPostAction(newPost));
+      } catch (error) {
+        console.log(error)
+      }
+
       // Reset form
       setPhotoUri(null);
       setPostTitle("");
@@ -101,7 +128,7 @@ const CreatePostsScreen = ({ navigation }) => {
 
       navigation.navigate('Home', {
         screen: 'Posts',
-        params: { photo: photoUri, location: location.coords, title: postTitle, position: postLocation }
+        //params: { photo: photoUri, location: location.coords, title: postTitle, position: postLocation }
       });
     } catch (error) {
       Alert.alert("Error", "Failed to fetch geolocation. Ensure location services are enabled.");

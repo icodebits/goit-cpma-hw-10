@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, setDoc, getDocs } from 'firebase/firestore';
 import { db, storage } from '../config';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
@@ -14,10 +14,25 @@ export const addUser = async (userId, userData) => {
 
 export const addPost = async (userId, post) => {
   try {
-    await setDoc(doc(db, 'posts', userId), { userId, posts: [post]}, { merge: true });
+    await addDoc(collection(db, 'posts', userId, 'posts'), post);
     console.log('Post added:', userId);
   } catch (error) {
     console.error('Error adding post:', error);
+  }
+};
+
+export const getPosts = async (userId) => {
+  const docRef = collection(db, 'posts', userId, 'posts');
+  const docSnap = await getDocs(docRef);
+
+  const posts = docSnap.docs.map((doc) => doc.data());
+
+  if (posts) {
+    //console.log('Posts from getPosts:', posts);
+    return posts;
+  } else {
+    console.log('No documents for user!');
+    return null;
   }
 };
 
@@ -27,7 +42,7 @@ export const getUser = async (userId) => {
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
-    console.log('User data from getUser:', docSnap.data());
+    //console.log('User data from getUser:', docSnap.data());
     return docSnap.data();
   } else {
     console.log('No such document!');

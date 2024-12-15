@@ -4,16 +4,34 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Image
+  Image,
+  FlatList,
 } from "react-native";
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
+import { setPosts } from "../redux/reducers/postsSlice";
+import { getPosts } from "../utils/firestore";
 const avatarImage = require("../assets/images/avatar.jpg");
 const mapPinIcon = require("../assets/icons/map-pin.png");
 const messageIcon = require("../assets/icons/message-circle.png");
 
-const PostsScreen = ({ navigation, route }) => {
+const PostsScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { posts, loading, error } = useSelector((state) => state.posts);
   const user = useSelector((state) => state.user.userInfo);
-  const { photo, location, title, position } = route.params || {};
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        await getPosts(user.uid).then((posts) => {
+          dispatch(setPosts(posts));
+        })
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    }
+    fetchPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -24,27 +42,36 @@ const PostsScreen = ({ navigation, route }) => {
           <Text style={styles.userEmail}>{ user.email }</Text>
         </View>
       </View>
-      {photo && (
-        <View style={styles.postCard}>
-          <Image source={{ uri: photo }} style={styles.postImage} />
-          <Text style={styles.postTitle}>{title}</Text>
-          <View style={styles.footerContainer}>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate("Comments");
-            }} style={styles.messageContainer}>
-              <Image source={messageIcon} style={styles.messageIcon} />
-              <Text style={styles.messageCounter}>0</Text>
-            </TouchableOpacity>
-            <View style={styles.locationContainer}>
-              <Image source={mapPinIcon} style={styles.mapPinIcon} />
+      {posts && (
+        <View style={styles.postList}>
+        {loading && <Text>Loading...</Text>}
+        <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.postCard}>
+            <Image source={{ uri: item.photo }} style={styles.postImage} />
+            <Text style={styles.postTitle}>{item.title}</Text>
+            <View style={styles.footerContainer}>
               <TouchableOpacity onPress={() => {
-                navigation.navigate("Map", { latitude: location.latitude, longitude: location.longitude });
-              }}>
-                <Text style={styles.locationText}>{position}</Text>
+                navigation.navigate("Comments");
+              }} style={styles.messageContainer}>
+                <Image source={messageIcon} style={styles.messageIcon} />
+                <Text style={styles.messageCounter}>0</Text>
               </TouchableOpacity>
+              <View style={styles.locationContainer}>
+                <Image source={mapPinIcon} style={styles.mapPinIcon} />
+                <TouchableOpacity onPress={() => {
+                  navigation.navigate("Map", { latitude: item.latitude, longitude: item.longitude });
+                }}>
+                  <Text style={styles.locationText}>{item.location}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        )}
+      />
+    </View>
       )}
 
     </View>
@@ -52,6 +79,10 @@ const PostsScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
+  postList: {
+    flex: 1,
+    width: "100%",
+  },
   container: {
     flex: 1,
     justifyContent: "top",

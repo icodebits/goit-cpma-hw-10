@@ -57,7 +57,9 @@ const CreatePostsScreen = ({ navigation }) => {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestCameraPermission} title="grant permission" />
+        <TouchableOpacity onPress={requestCameraPermission} title="grant permission">
+          <Text style={styles.message}>Tap to grant camera permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }

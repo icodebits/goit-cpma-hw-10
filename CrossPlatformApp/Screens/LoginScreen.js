@@ -10,7 +10,10 @@ import {
   TouchableWithoutFeedback,
   ImageBackground,
   Platform,
+  Alert
 } from "react-native";
+import { loginDB } from "../utils/auth";
+import { useDispatch } from "react-redux";
 
 const backgroundImage = require("../assets/images/background.png");
 
@@ -20,13 +23,14 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const dispatch = useDispatch();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     let noEmailErrors, noPasswordErrors = false;
     if (!email) {
       setEmailError("Введіть адресу електронної пошти");
@@ -47,8 +51,16 @@ const LoginScreen = ({ navigation }) => {
     if (noEmailErrors === true && noPasswordErrors === true) {
       console.log("Form submitted with email:", email);
       console.log("Form submitted with password:", password);
-      Keyboard.dismiss();
-      navigation.navigate("Home");
+      
+
+      try {
+        await loginDB({ email, password }, dispatch);
+        Keyboard.dismiss();
+        navigation.navigate("Home");
+      } catch (err) {
+        Alert.alert('err')
+        console.error('Login error:', err); // Логування помилок
+      }
     }
   };
 

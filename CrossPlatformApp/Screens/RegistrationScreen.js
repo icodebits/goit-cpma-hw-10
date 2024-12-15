@@ -12,10 +12,15 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
+import { registerDB } from "../utils/auth";
+import { updateUserInFirestore, getUser } from "../utils/firestore";
+import { setUserInfo } from '../redux/reducers/userSlice';
+import { useDispatch } from "react-redux";
 const backgroundImage = require("../assets/images/background.png");
 const addIcon = require("../assets/images/add.png");
 
 const RegistrationScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
@@ -27,14 +32,33 @@ const RegistrationScreen = ({ navigation }) => {
     return emailRegex.test(email);
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (!validateEmail(email)) {
       setEmailError("Введіть дійсну адресу електронної пошти");
     } else {
       setEmailError("");
-      console.log("Form submitted with login:", login);
-      console.log("Form submitted with email:", email);
-      console.log("Form submitted with password:", password);
+      //console.log("Form submitted with login:", login);
+      //console.log("Form submitted with email:", email);
+      //console.log("Form submitted with password:", password);
+
+      try {
+        await registerDB({ email, password })
+          .then(async (userId) => {
+            try {
+              await updateUserInFirestore(userId, { displayName: login });
+              
+              const userData = await getUser(userId);
+              dispatch(setUserInfo({
+                ...userData,
+                displayName: login,
+              }));
+            } catch (error) {
+              console.log('User update error:', error);
+            }
+          })
+      } catch (err) {
+        console.error('Registration error:', err);
+      }
     }
   };
 

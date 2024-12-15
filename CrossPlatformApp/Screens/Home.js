@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PostsScreen from "./PostsScreen";
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
+import { logoutDB } from "../utils/auth";
+import { useDispatch } from "react-redux";
 
 const gridIcon = require("../assets/icons/grid.png");
 const addIcon = require("../assets/icons/add.png");
@@ -15,6 +17,13 @@ const arrowLeftIcon = require("../assets/icons/arrow-left.png");
 const Tab = createBottomTabNavigator();
 
 const Home = ({ navigation }) => {
+  
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    logoutDB(dispatch);
+    navigation.navigate("Login");
+  }
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -38,7 +47,7 @@ const Home = ({ navigation }) => {
         options={{
           headerTitle: "Публікації",
           headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={handleLogout}>
                 <View style={[styles.headerRightIcon]}>
                     <Image source={logOutIcon} style={styles.logOutIcon} />
                 </View>

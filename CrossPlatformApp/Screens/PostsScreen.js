@@ -6,11 +6,13 @@ import {
   StyleSheet,
   Image
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 const avatarImage = require("../assets/images/avatar.jpg");
 const mapPinIcon = require("../assets/icons/map-pin.png");
 const messageIcon = require("../assets/icons/message-circle.png");
 
 const PostsScreen = ({ navigation, route }) => {
+  const user = useSelector((state) => state.user.userInfo);
   const { photo, location, title, position } = route.params || {};
 
   return (
@@ -18,8 +20,8 @@ const PostsScreen = ({ navigation, route }) => {
       <View style={styles.userInfo}>
         <Image source={avatarImage} style={styles.avatarImage} />
         <View style={styles.userData}>
-          <Text style={styles.userName}>Natali Romanova</Text>
-          <Text style={styles.userEmail}>email@example.com</Text>
+          <Text style={styles.userName}>{ user.displayName }</Text>
+          <Text style={styles.userEmail}>{ user.email }</Text>
         </View>
       </View>
       {photo && (
